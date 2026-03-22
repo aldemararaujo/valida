@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Matriz TRL × Camadas</title>
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --card: #ffffff;
+      --text: #122033;
+      --muted: #5d6b82;
+      --line: #dbe3ef;
+      --blue-1: #eaf4ff;
+      --blue-2: #cfe4ff;
+      --blue-3: #9ec8ff;
+      --blue-4: #5c9eff;
+      --blue-5: #1e5fcc;
+      --navy: #16325c;
+      --green: #16a34a;
+      --amber: #d97706;
+      --red: #dc2626;
+      --shadow: 0 12px 30px rgba(15, 35, 70, 0.08);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, Arial, Helvetica, sans-serif;
+      background: linear-gradient(180deg, #f7f9fd 0%, #eef3fb 100%);
+      color: var(--text);
+    }
+
+    .container {
+      width: min(1400px, 94vw);
+      margin: 0 auto;
+      padding: 28px 0 40px;
+    }
+
+    .hero {
+      background: radial-gradient(circle at top left, #f5fbff 0%, #edf4ff 40%, #ffffff 100%);
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      padding: 28px;
+      box-shadow: var(--shadow);
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: 22px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: var(--blue-1);
+      color: var(--navy);
+      font-weight: 700;
+      font-size: 12px;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 14px 0 12px;
+      font-size: clamp(28px, 4vw, 46px);
+      line-height: 1.05;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 18px;
+      line-height: 1.5;
+      max-width: 820px;
+    }
+
+    .hero-cards {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      align-content: start;
+    }
+
+    .mini-card, .panel, .legend, .toolbar, .summary-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .mini-card {
+      padding: 16px;
+    }
+
+    .mini-card h3 {
+      margin: 0 0 8px;
+      font-size: 15px;
+    }
+
+    .mini-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .layout {
+      margin-top: 22px;
+      display: grid;
+      grid-template-columns: 1.3fr 0.9fr;
+      gap: 22px;
+      align-items: start;
+    }
+
+    .toolbar {
+      padding: 16px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .toolbar-left, .toolbar-right {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    button, select {
+      border: 1px solid var(--line);
+      background: white;
+      color: var(--text);
+      padding: 10px 14px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: 0.2s ease;
+      font-size: 14px;
+    }
+
+    button:hover, select:hover {
+      border-color: var(--blue-4);
+      transform: translateY(-1px);
+    }
+
+    button.active {
+      background: var(--navy);
+      color: white;
+      border-color: var(--navy);
+    }
+
+    .legend {
+      padding: 16px;
+      margin-top: 16px;
+    }
+
+    .legend-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .swatch {
+      width: 16px;
+      height: 16px;
+      border-radius: 6px;
+      border: 1px solid rgba(0,0,0,0.06);
+      flex: 0 0 16px;
+    }
+
+    .matrix-wrap {
+      margin-top: 16px;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .matrix-title {
+      padding: 18px 20px 8px;
+    }
+
+    .matrix-title h2 {
+      margin: 0;
+      font-size: 22px;
+    }
+
+    .matrix-title p {
+      margin: 8px 0 0;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .matrix {
+      overflow-x: auto;
+      padding: 16px 18px 20px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 220px repeat(9, minmax(110px, 1fr));
+      gap: 10px;
+      min-width: 1240px;
+      align-items: stretch;
+    }
+
+    .header-cell,
+    .row-label,
+    .cell {
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      min-height: 92px;
+    }
+
+    .header-cell {
+      background: #f8fbff;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 12px;
+      text-align: center;
+    }
+
+    .header-cell strong {
+      font-size: 18px;
+      color: var(--navy);
+    }
+
+    .header-cell span {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    .row-label {
+      background: linear-gradient(135deg, #fbfdff 0%, #f1f6ff 100%);
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .row-label strong {
+      font-size: 16px;
+      color: var(--navy);
+    }
+
+    .row-label span {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.35;
+    }
+
+    .cell {
+      padding: 12px;
+      background: white;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      justify-content: space-between;
+      cursor: pointer;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+      position: relative;
+    }
+
+    .cell:hover {
+      transform: translateY(-2px);
+      border-color: var(--blue-4);
+      box-shadow: 0 10px 24px rgba(15, 35, 70, 0.08);
+    }
+
+    .cell.hidden-by-filter {
+      opacity: 0.22;
+    }
+
+    .cell.active {
+      outline: 3px solid rgba(30, 95, 204, 0.18);
+      border-color: var(--blue-5);
+    }
+
+    .cell-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--navy);
+    }
+
+    .cell-desc {
+      font-size: 12px;
+      line-height: 1.4;
+      color: var(--muted);
+      min-height: 34px;
+    }
+
+    .badge {
+      align-self: flex-start;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+    }
+
+    .status-empty { background: #f3f4f6; color: #4b5563; }
+    .status-base { background: #dbeafe; color: #1d4ed8; }
+    .status-mid { background: #ede9fe; color: #6d28d9; }
+    .status-top { background: #dcfce7; color: #166534; }
+    .status-overlap { background: #cffafe; color: #155e75; }
+
+    .panel {
+      padding: 20px;
+      position: sticky;
+      top: 18px;
+    }
+
+    .panel h2 {
+      margin: 0 0 10px;
+      font-size: 24px;
+    }
+
+    .panel p {
+      color: var(--muted);
+      line-height: 1.55;
+      margin: 0 0 14px;
+    }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .pill {
+      padding: 8px 10px;
+      border-radius: 999px;
+      background: #f4f7fc;
+      border: 1px solid var(--line);
+      color: var(--navy);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .panel-section {
+      margin-top: 18px;
+      padding-top: 18px;
+      border-top: 1px solid var(--line);
+    }
+
+    .panel-section h3 {
+      margin: 0 0 10px;
+      font-size: 15px;
+      color: var(--navy);
+    }
+
+    .list {
+      margin: 0;
+      padding-left: 20px;
+      color: var(--muted);
+      line-height: 1.6;
+      font-size: 14px;
+    }
+
+    .summary-grid {
+      margin-top: 18px;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .summary-card {
+      padding: 16px;
+    }
+
+    .summary-card h3 {
+      margin: 0 0 6px;
+      font-size: 15px;
+      color: var(--navy);
+    }
+
+    .summary-card .big {
+      font-size: 28px;
+      font-weight: 800;
+      margin: 0 0 4px;
+    }
+
+    .summary-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .footer-note {
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .mode-tip {
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: #f7fbff;
+      border: 1px solid var(--line);
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    @media (max-width: 1080px) {
+      .hero, .layout {
+        grid-template-columns: 1fr;
+      }
+      .panel {
+        position: static;
+      }
+      .legend-grid, .summary-grid, .hero-cards {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .container { width: min(96vw, 96vw); }
+      .hero, .panel, .toolbar, .legend, .summary-card, .mini-card { border-radius: 18px; }
+      .legend-grid, .summary-grid, .hero-cards {
+        grid-template-columns: 1fr;
+      }
+      h1 { font-size: 32px; }
+      .subtitle { font-size: 16px; }
+    }
+
+    .bg-empty { background: #fbfbfc; }
+    .bg-base { background: linear-gradient(180deg, #f2f8ff 0%, #e3efff 100%); }
+    .bg-mid { background: linear-gradient(180deg, #f7f2ff 0%, #eee5ff 100%); }
+    .bg-top { background: linear-gradient(180deg, #f1fff6 0%, #e3fbe9 100%); }
+    .bg-overlap { background: linear-gradient(180deg, #ecfcff 0%, #dcf5ff 100%); }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <section class="hero">
+      <div>
+        <div class="eyebrow">Matriz interativa, TRL × Camadas</div>
+        <h1>Arquitetura de validação em três camadas, integrada ao TRL</h1>
+        <p class="subtitle">
+          Esta interface cruza o eixo de maturidade tecnológica, TRL 1 a 9, com o eixo de validação, técnica, analítica e clínica. O objetivo é mostrar quando cada camada passa a ser dominante, quando há sobreposição e quais evidências precisam amadurecer antes do avanço.
+        </p>
+      </div>
+      <div class="hero-cards">
+        <div class="mini-card">
+          <h3>Pergunta do TRL</h3>
+          <p>Quão madura está a tecnologia ao longo da jornada, da ideação à operação consolidada.</p>
+        </div>
+        <div class="mini-card">
+          <h3>Pergunta das camadas</h3>
+          <p>Quão validada está a solução, da engenharia segura até o impacto clínico real.</p>
+        </div>
+        <div class="mini-card">
+          <h3>Leitura didática</h3>
+          <p>Primeiro construir bem, depois provar que funciona, por fim demonstrar valor assistencial real.</p>
+        </div>
+        <div class="mini-card">
+          <h3>Versão Premium</h3>
+          <p>Inclui filtros, modos de leitura, painel contextual, resumo automático, impressão e cópia do diagnóstico textual.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="layout">
+      <div>
+        <div class="toolbar">
+          <div class="toolbar-left">
+            <button class="mode-btn active" data-mode="didatico">Modo didático</button>
+            <button class="mode-btn" data-mode="regulatorio">Modo regulatório</button>
+            <button class="mode-btn" data-mode="premium">Modo premium</button>
+          </div>
+          <div class="toolbar-right">
+            <select id="layerFilter">
+              <option value="todos">Mostrar todas as camadas</option>
+              <option value="pre">Destacar pré validação</option>
+              <option value="base">Destacar camada base</option>
+              <option value="intermediaria">Destacar camada intermediária</option>
+              <option value="topo">Destacar camada topo</option>
+            </select>
+            <button id="printBtn">Imprimir</button>
+            <button id="copyBtn">Copiar resumo</button>
+          </div>
+        </div>
+
+        <div class="legend">
+          <div class="legend-grid">
+            <div class="legend-item"><span class="swatch" style="background:#fbfbfc"></span> Pré validação, ideação e plausibilidade</div>
+            <div class="legend-item"><span class="swatch" style="background:#e3efff"></span> Camada base, validação técnica</div>
+            <div class="legend-item"><span class="swatch" style="background:#eee5ff"></span> Camada intermediária, validação analítica</div>
+            <div class="legend-item"><span class="swatch" style="background:#e3fbe9"></span> Camada topo, validação clínica</div>
+          </div>
+        </div>
+
+        <div class="matrix-wrap">
+          <div class="matrix-title">
+            <h2>Matriz TRL × Camadas</h2>
+            <p>
+              Clique em um TRL ou em uma célula da matriz para ver a explicação contextual. As transições mais importantes acontecem no TRL 4, quando a validação técnica se torna formal, no TRL 5 e 6, quando o desempenho analítico ganha protagonismo, e no TRL 7 e 8, quando a camada clínica passa a dominar.
+            </p>
+          </div>
+          <div class="matrix">
+            <div class="grid" id="matrixGrid"></div>
+          </div>
+        </div>
+
+        <div class="summary-grid">
+          <div class="summary-card">
+            <h3>Faixa de entrada na validação formal</h3>
+            <p class="big">TRL 4</p>
+            <p>Aqui a solução deixa a ideia pura e passa a exigir estrutura técnica, testes organizados e rastreabilidade.</p>
+          </div>
+          <div class="summary-card">
+            <h3>Faixa de transição analítica</h3>
+            <p class="big">TRL 5–6</p>
+            <p>O foco muda de construir para medir. O algoritmo precisa sustentar consistência, precisão e generalização.</p>
+          </div>
+          <div class="summary-card">
+            <h3>Faixa de consolidação clínica</h3>
+            <p class="big">TRL 7–9</p>
+            <p>O centro da discussão passa a ser impacto real, segurança em campo, adoção e vigilância pós implementação.</p>
+          </div>
+        </div>
+
+        <p class="footer-note">
+          Frase síntese: o TRL mede o quanto a tecnologia cresceu. As camadas medem o quanto essa tecnologia é confiável.
+        </p>
+      </div>
+
+      <aside class="panel">
+        <h2 id="panelTitle">Selecione um TRL ou uma célula</h2>
+        <p id="panelIntro">Use a matriz para explorar a relação entre maturidade tecnológica e profundidade de validação.</p>
+        <div class="pill-row" id="panelPills"></div>
+
+        <div class="mode-tip" id="modeTip">
+          No modo didático, a interface privilegia explicações simples, linguagem progressiva e exemplos de leitura rápida.
+        </div>
+
+        <div class="panel-section">
+          <h3>Pergunta central</h3>
+          <p id="panelQuestion">A pergunta central aparecerá aqui.</p>
+        </div>
+
+        <div class="panel-section">
+          <h3>O que precisa existir</h3>
+          <ol class="list" id="panelNeeds"></ol>
+        </div>
+
+        <div class="panel-section">
+          <h3>Risco de avançar cedo demais</h3>
+          <ol class="list" id="panelRisks"></ol>
+        </div>
+
+        <div class="panel-section">
+          <h3>Foco ético e regulatório</h3>
+          <ol class="list" id="panelEthics"></ol>
+        </div>
+      </aside>
+    </section>
+  </div>
+
+  <script>
+    const trlData = {
+      1: {
+        faixa: 'Ideação inicial',
+        resumo: 'Pesquisa básica, problema ainda em formulação, hipótese e plausibilidade científica.',
+        question: 'Existe um problema real e uma hipótese de solução com fundamento científico?',
+        needs: ['Definição do problema clínico ou operacional.', 'Busca bibliográfica estruturada.', 'Hipótese inicial da solução.', 'Descrição do uso pretendido.'],
+        risks: ['Confundir entusiasmo com evidência.', 'Pular direto para produto sem clareza do problema.', 'Criar tecnologia para uma dor mal definida.'],
+        ethics: ['Sem uso clínico direto.', 'Sem validação formal.', 'Ética em pesquisa geralmente ainda não acionada, salvo uso de dados ou pessoas.']
+      },
+      2: {
+        faixa: 'Conceito formulado',
+        resumo: 'Os princípios da solução ficam mais claros, mas a tecnologia ainda não entrou em validação sistemática.',
+        question: 'A solução faz sentido teórico e tem lógica técnica mínima?',
+        needs: ['Modelo conceitual da solução.', 'Delimitação do cenário de uso.', 'Critérios iniciais de sucesso.', 'Definição do que ainda é hipótese.'],
+        risks: ['Superestimar maturidade.', 'Não delimitar uso pretendido.', 'Construir sem requisitos.'],
+        ethics: ['Ainda predominam atividades de concepção.', 'Avaliar desde cedo possíveis riscos futuros e fontes de dados.']
+      },
+      3: {
+        faixa: 'Prova de conceito',
+        resumo: 'Há uma demonstração inicial de viabilidade, mas ainda sem robustez de validação técnica formal.',
+        question: 'A ideia consegue ser demonstrada de forma preliminar?',
+        needs: ['Protótipo conceitual ou modelo inicial.', 'Critérios de desempenho preliminar.', 'Mapeamento de incertezas.'],
+        risks: ['Confundir prova de conceito com produto.', 'Ignorar arquitetura e rastreabilidade.'],
+        ethics: ['Planejar desde já a futura escalada ética e regulatória.', 'Documentar bem a transição para o TRL 4.']
+      },
+      4: {
+        faixa: 'Validação técnica inicial',
+        resumo: 'Marco de entrada na validação formal. O foco passa a ser arquitetura, risco, usabilidade e qualidade estrutural.',
+        question: 'O sistema foi construído de forma segura, organizada e tecnicamente auditável?',
+        needs: ['Arquitetura documentada.', 'Testes de bancada ou ambiente controlado.', 'Análise inicial de risco.', 'Versão minimamente rastreável.', 'Critérios de qualidade e usabilidade.'],
+        risks: ['Subir para estudos com uso real sem base técnica.', 'Ignorar falhas de interface.', 'Não registrar mudanças e requisitos.'],
+        ethics: ['Se houver banca de especialistas ou coleta estruturada com pessoas, já pode haver exigência ética.', 'A atenção ética deixa de ser teórica e passa a ser operacional.']
+      },
+      5: {
+        faixa: 'Protótipo em ambiente relevante',
+        resumo: 'A solução entra em cenário mais próximo da realidade. A camada técnica continua ativa, mas a validação analítica ganha força.',
+        question: 'O algoritmo ou mecanismo central mantém desempenho consistente em ambiente relevante?',
+        needs: ['Dados mais representativos.', 'Métricas analíticas claras.', 'Comparação entre versões.', 'Plano de validação e monitoramento.'],
+        risks: ['Overfitting.', 'Acurácia boa em dados artificiais e ruim em contexto mais real.', 'Subir para clínica sem validação externa suficiente.'],
+        ethics: ['CEP tende a se tornar obrigatório quando há pessoas ou dados clínicos.', 'Definir consentimento, monitoramento e segurança.']
+      },
+      6: {
+        faixa: 'Protótipo funcional robusto',
+        resumo: 'A solução já opera com coerência funcional. O desempenho analítico precisa estar claro, replicável e justificável.',
+        question: 'A tecnologia funciona bem o bastante para sustentar avaliação mais próxima do uso clínico ou operacional real?',
+        needs: ['Validação analítica robusta.', 'Teste em ambiente relevante com rastreio de desempenho.', 'Análise de subgrupos e falhas.', 'Plano de mitigação contínua.'],
+        risks: ['Ignorar vieses.', 'Confundir precisão global com segurança real.', 'Não entender para quem o sistema falha.'],
+        ethics: ['Monitoramento ético se intensifica.', 'A documentação precisa suportar risco concreto e proteção do participante.']
+      },
+      7: {
+        faixa: 'Demonstração em ambiente real',
+        resumo: 'A tecnologia entra no mundo real. A camada clínica passa a dominar, sem abandonar as evidências técnicas e analíticas.',
+        question: 'No ambiente real, a solução melhora decisão, processo ou desfecho sem gerar dano desproporcional?',
+        needs: ['Protocolo de uso real.', 'Critérios clínicos ou operacionais relevantes.', 'Monitoramento de segurança.', 'Evidência de adoção e interpretação correta.'],
+        risks: ['Levar solução instável para o campo.', 'Produzir falsa sensação de segurança.', 'Ter impacto clínico nulo apesar de boa performance analítica.'],
+        ethics: ['Alto grau de complexidade ética.', 'Consentimento, governança, segurança e monitoramento em campo tornam-se centrais.']
+      },
+      8: {
+        faixa: 'Sistema quase final',
+        resumo: 'A tecnologia acumula evidência robusta em contexto real e se aproxima da consolidação do produto.',
+        question: 'A evidência clínica e operacional já é forte o suficiente para sustentar confiança ampla?',
+        needs: ['Estudos mais robustos.', 'Resultados consistentes em campo.', 'Documentação consolidada.', 'Plano de implementação e vigilância.'],
+        risks: ['Escalar com evidência ainda fragmentada.', 'Negligenciar governança pós implantação.', 'Subestimar risco residual.'],
+        ethics: ['Persistem obrigações éticas e regulatórias elevadas.', 'A transição para rotina assistencial exige governança clara.']
+      },
+      9: {
+        faixa: 'Operação consolidada',
+        resumo: 'A tecnologia está comprovada em operação real. A discussão se desloca para vigilância, qualidade contínua e responsabilidade.',
+        question: 'A tecnologia se sustenta com segurança, valor e monitoramento contínuo em operação plena?',
+        needs: ['Evidência consolidada.', 'Monitoramento pós implementação.', 'Vigilância de segurança.', 'Governança de atualização.'],
+        risks: ['Achar que validação acabou.', 'Abandonar tecnovigilância.', 'Atualizar sem controle de impacto.'],
+        ethics: ['Transição do foco de pesquisa para vigilância, responsabilidade profissional, sanitária e proteção de dados.']
+      }
+    };
+
+    const rows = [
+      {
+        key: 'pre',
+        title: 'Pré validação',
+        subtitle: 'Ideação, plausibilidade e prova inicial de conceito',
+        active: [1,2,3],
+        bg: 'bg-empty',
+        badge: 'status-empty',
+        badgeText: 'exploratória'
+      },
+      {
+        key: 'base',
+        title: 'Camada Base',
+        subtitle: 'Validação técnica, arquitetura, risco e usabilidade',
+        active: [4,5,6],
+        overlap: [5,6],
+        bg: 'bg-base',
+        badge: 'status-base',
+        badgeText: 'técnica'
+      },
+      {
+        key: 'intermediaria',
+        title: 'Camada Intermediária',
+        subtitle: 'Validação analítica, consistência e precisão',
+        active: [5,6,7,8],
+        overlap: [7,8],
+        bg: 'bg-mid',
+        badge: 'status-mid',
+        badgeText: 'analítica'
+      },
+      {
+        key: 'topo',
+        title: 'Camada Topo',
+        subtitle: 'Validação clínica, uso real e impacto assistencial',
+        active: [7,8,9],
+        bg: 'bg-top',
+        badge: 'status-top',
+        badgeText: 'clínica'
+      }
+    ];
+
+    const modeContent = {
+      didatico: {
+        tip: 'No modo didático, a interface privilegia explicações simples, linguagem progressiva e leitura rápida da jornada.',
+        suffix: 'Leitura didática'
+      },
+      regulatorio: {
+        tip: 'No modo regulatório, o foco recai sobre evidência mínima, documentação, risco e pontos de atenção ética ao avançar de faixa.',
+        suffix: 'Leitura regulatória'
+      },
+      premium: {
+        tip: 'No modo premium, a leitura combina estratégia, governança, risco, prontidão documental e transição entre maturidade e validação.',
+        suffix: 'Leitura premium'
+      }
+    };
+
+    const matrixGrid = document.getElementById('matrixGrid');
+    const panelTitle = document.getElementById('panelTitle');
+    const panelIntro = document.getElementById('panelIntro');
+    const panelQuestion = document.getElementById('panelQuestion');
+    const panelNeeds = document.getElementById('panelNeeds');
+    const panelRisks = document.getElementById('panelRisks');
+    const panelEthics = document.getElementById('panelEthics');
+    const panelPills = document.getElementById('panelPills');
+    const modeTip = document.getElementById('modeTip');
+    const layerFilter = document.getElementById('layerFilter');
+
+    let currentMode = 'didatico';
+    let selectedCellId = null;
+
+    function buildMatrix() {
+      matrixGrid.innerHTML = '';
+
+      const emptyHeader = document.createElement('div');
+      emptyHeader.className = 'header-cell';
+      emptyHeader.innerHTML = '<strong>Camadas</strong><span>Relação entre maturidade e validação</span>';
+      matrixGrid.appendChild(emptyHeader);
+
+      for (let trl = 1; trl <= 9; trl++) {
+        const head = document.createElement('button');
+        head.className = 'header-cell';
+        head.innerHTML = `<strong>TRL ${trl}</strong><span>${trlData[trl].faixa}</span>`;
+        head.addEventListener('click', () => selectTRL(trl));
+        matrixGrid.appendChild(head);
+      }
+
+      rows.forEach(row => {
+        const label = document.createElement('div');
+        label.className = 'row-label';
+        label.innerHTML = `<strong>${row.title}</strong><span>${row.subtitle}</span>`;
+        matrixGrid.appendChild(label);
+
+        for (let trl = 1; trl <= 9; trl++) {
+          const cell = document.createElement('div');
+          const isActive = row.active.includes(trl);
+          const isOverlap = row.overlap && row.overlap.includes(trl);
+          const bgClass = isOverlap ? 'bg-overlap' : (isActive ? row.bg : 'bg-empty');
+          const statusClass = isOverlap ? 'status-overlap' : (isActive ? row.badge : 'status-empty');
+          const statusText = isOverlap ? 'transição' : (isActive ? row.badgeText : 'não dominante');
+          const cellId = `${row.key}-${trl}`;
+          cell.className = `cell ${bgClass}`;
+          cell.dataset.row = row.key;
+          cell.dataset.trl = trl;
+          cell.dataset.cellId = cellId;
+          cell.innerHTML = `
+            <div class="cell-title">TRL ${trl}</div>
+            <div class="cell-desc">${getCellDescription(row.key, trl, isActive, isOverlap)}</div>
+            <span class="badge ${statusClass}">${statusText}</span>
+          `;
+          cell.addEventListener('click', () => selectCell(row.key, trl));
+          matrixGrid.appendChild(cell);
+        }
+      });
+    }
+
+    function getCellDescription(rowKey, trl, isActive, isOverlap) {
+      if (rowKey === 'pre') {
+        return trl <= 3 ? 'Problema, hipótese e plausibilidade.' : 'A pré validação já não é o foco principal.';
+      }
+      if (!isActive) return 'Camada ainda não dominante nesta faixa.';
+      if (rowKey === 'base') {
+        if (trl === 4) return 'Entrada formal da engenharia de validação.';
+        if (isOverlap) return 'Base técnica ainda manda, mas começa a dividir espaço.';
+        return 'Estrutura técnica ativa e exigente.';
+      }
+      if (rowKey === 'intermediaria') {
+        if (trl <= 6) return 'Desempenho analítico ganha centralidade.';
+        if (isOverlap) return 'Analítica sustenta a clínica no uso real.';
+        return 'Consistência analítica madura.';
+      }
+      if (rowKey === 'topo') {
+        if (trl === 7) return 'A clínica passa a dominar o julgamento final.';
+        if (trl === 8) return 'Benefício em mundo real precisa ser robusto.';
+        return 'Operação consolidada e vigilância contínua.';
+      }
+      return 'Transição em curso.';
+    }
+
+    function selectTRL(trl) {
+      clearActiveCells();
+      selectedCellId = `trl-${trl}`;
+      updatePanel({
+        title: `TRL ${trl}, ${trlData[trl].faixa}`,
+        intro: trlData[trl].resumo,
+        question: trlData[trl].question,
+        needs: trlData[trl].needs,
+        risks: trlData[trl].risks,
+        ethics: trlData[trl].ethics,
+        pills: [`TRL ${trl}`, trlData[trl].faixa, modeContent[currentMode].suffix]
+      });
+    }
+
+    function selectCell(rowKey, trl) {
+      clearActiveCells();
+      const cell = document.querySelector(`[data-cell-id="${rowKey}-${trl}"]`);
+      if (cell) cell.classList.add('active');
+      selectedCellId = `${rowKey}-${trl}`;
+
+      const rowNameMap = {
+        pre: 'Pré validação',
+        base: 'Camada Base',
+        intermediaria: 'Camada Intermediária',
+        topo: 'Camada Topo'
+      };
+
+      const contextual = buildContextualContent(rowKey, trl);
+      updatePanel({
+        title: `${rowNameMap[rowKey]} × TRL ${trl}`,
+        intro: contextual.intro,
+        question: contextual.question,
+        needs: contextual.needs,
+        risks: contextual.risks,
+        ethics: contextual.ethics,
+        pills: [`TRL ${trl}`, rowNameMap[rowKey], modeContent[currentMode].suffix]
+      });
+    }
+
+    function buildContextualContent(rowKey, trl) {
+      const base = trlData[trl];
+
+      const map = {
+        pre: {
+          intro: trl <= 3
+            ? 'Nesta zona, a camada dominante ainda é exploratória. O foco está em compreender a dor, formular a hipótese e separar intuição de fundamento científico.'
+            : 'A fase exploratória perde protagonismo. A partir daqui, a validação formal precisa assumir o centro do processo.',
+          question: trl <= 3
+            ? 'A hipótese está sólida o suficiente para justificar a construção?'
+            : 'O projeto já não deveria estar apenas explorando, mas estruturando validação?',
+          needs: trl <= 3
+            ? ['Problema claramente delimitado.', 'Hipótese defensável.', 'Uso pretendido esboçado.', 'Critérios iniciais de sucesso.']
+            : ['Encerrar a fase puramente exploratória.', 'Migrar para documentação técnica.', 'Definir testes e requisitos.'],
+          risks: trl <= 3
+            ? ['Permanecer tempo demais na abstração.', 'Confundir literatura promissora com solução pronta.']
+            : ['Atrasar a entrada na validação técnica.', 'Tentar avançar sem rastreabilidade.'],
+          ethics: ['Monitorar fontes de dados e eventual uso de pessoas desde cedo.', 'Antecipar o escalonamento ético evita retrabalho futuro.']
+        },
+        base: {
+          intro: trl < 4
+            ? 'Antes do TRL 4, a camada base ainda não é dominante. Ela está sendo preparada conceitualmente.'
+            : trl <= 6
+              ? 'Aqui a engenharia da solução precisa ficar sólida. Arquitetura, risco, usabilidade e qualidade não podem ser tratados como detalhes.'
+              : 'A camada base já deveria estar consolidada. No uso real, ela continua essencial, mas deixa de ser o centro da narrativa.',
+          question: trl < 4
+            ? 'A base técnica já está pronta para sair do plano das ideias?'
+            : 'O sistema foi construído com qualidade suficiente para sustentar as próximas camadas?',
+          needs: trl < 4
+            ? ['Transformar hipótese em requisitos.', 'Planejar arquitetura.', 'Definir riscos iniciais.']
+            : ['Requisitos rastreáveis.', 'Testes documentados.', 'Gestão de risco.', 'Usabilidade mínima segura.', 'Controle de versão e mudanças.'],
+          risks: trl < 4
+            ? ['Pular da ideia para o campo sem engenharia.']
+            : ['Falha estrutural mascarada por bom resultado aparente.', 'Interface insegura.', 'Baixa auditabilidade.'],
+          ethics: trl >= 4
+            ? ['Se houver participação humana, o desenho ético já pode ser obrigatório.', 'A segurança técnica passa a ter implicação ética direta.']
+            : ['A dimensão ética ainda é preparatória, mas deve ser antecipada.']
+        },
+        intermediaria: {
+          intro: trl < 5
+            ? 'Antes do TRL 5, a camada analítica ainda não domina. O algoritmo pode existir, mas ainda não sustenta julgamento robusto.'
+            : trl <= 8
+              ? 'Aqui a pergunta muda. Não basta o sistema existir. O núcleo analítico precisa mostrar consistência, precisão e estabilidade em contexto relevante.'
+              : 'No TRL 9, a camada analítica já deveria estar amadurecida e agora passa a ser mantida sob vigilância contínua.',
+          question: trl < 5
+            ? 'Já há evidência analítica suficiente para sair da fase técnica pura?'
+            : 'O mecanismo central da solução interpreta bem os dados e mantém desempenho confiável?',
+          needs: trl < 5
+            ? ['Definir métricas analíticas.', 'Separar dados de desenvolvimento e avaliação.', 'Planejar validação externa.']
+            : ['Métricas adequadas ao caso.', 'Validação interna e externa.', 'Análise de falhas.', 'Subgrupos e viés.', 'Monitoramento de degradação de desempenho.'],
+          risks: trl < 5
+            ? ['Forçar narrativa de desempenho cedo demais.']
+            : ['Overfitting.', 'Generalização fraca.', 'Métricas bonitas e pouca confiabilidade real.'],
+          ethics: ['Quando o sistema influencia decisão ou usa dados clínicos, a camada analítica passa a ter peso ético concreto.', 'Explicar limitações e faixas de falha é parte da proteção do usuário e do participante.']
+        },
+        topo: {
+          intro: trl < 7
+            ? 'Antes do TRL 7, a camada clínica ainda não é dominante. Qualquer discurso de impacto real precisa ser tratado com muita cautela.'
+            : 'Nesta faixa, a realidade assistencial se torna o teste decisivo. O centro da discussão é benefício real, segurança em campo, adoção e valor clínico.',
+          question: trl < 7
+            ? 'Já existe maturidade suficiente para afirmar benefício clínico ou operacional real?'
+            : 'No uso real, a tecnologia melhora decisão, processo ou desfecho sem ampliar dano?',
+          needs: trl < 7
+            ? ['Consolidar técnica e analítica antes da clínica.', 'Definir desfechos relevantes.', 'Planejar estudo de campo.']
+            : ['Ambiente real de uso.', 'Desfechos relevantes.', 'Monitoramento de segurança.', 'Avaliação de adoção e interpretação.', 'Plano de vigilância contínua.'],
+          risks: trl < 7
+            ? ['Falar em impacto clínico sem base suficiente.']
+            : ['Baixo efeito real apesar de boa performance experimental.', 'Risco residual não percebido.', 'Escala sem governança.'],
+          ethics: trl < 7
+            ? ['A ética clínica ainda está em preparação, não em consolidação.']
+            : ['Consentimento, governança, proteção do participante e monitoramento tornam-se centrais.', 'No TRL 9, o foco migra para vigilância, responsabilidade e proteção de dados.']
+        }
+      };
+
+      const contextual = map[rowKey];
+
+      if (currentMode === 'regulatorio') {
+        contextual.intro += ' Nesta leitura, o avanço depende de documentação, controle de risco, rastreabilidade e coerência com o uso pretendido.';
+      }
+      if (currentMode === 'premium') {
+        contextual.intro += ' Nesta leitura premium, considere também prontidão documental, governança de mudança, escalabilidade e sustentabilidade da evidência.';
+      }
+
+      return contextual;
+    }
+
+    function updatePanel({ title, intro, question, needs, risks, ethics, pills }) {
+      panelTitle.textContent = title;
+      panelIntro.textContent = intro;
+      panelQuestion.textContent = question;
+      panelNeeds.innerHTML = needs.map(item => `<li>${item}</li>`).join('');
+      panelRisks.innerHTML = risks.map(item => `<li>${item}</li>`).join('');
+      panelEthics.innerHTML = ethics.map(item => `<li>${item}</li>`).join('');
+      panelPills.innerHTML = pills.map(p => `<span class="pill">${p}</span>`).join('');
+      modeTip.textContent = modeContent[currentMode].tip;
+    }
+
+    function clearActiveCells() {
+      document.querySelectorAll('.cell.active').forEach(c => c.classList.remove('active'));
+    }
+
+    function applyFilter() {
+      const filter = layerFilter.value;
+      document.querySelectorAll('.cell').forEach(cell => {
+        const row = cell.dataset.row;
+        if (filter === 'todos') {
+          cell.classList.remove('hidden-by-filter');
+        } else {
+          cell.classList.toggle('hidden-by-filter', row !== filter);
+        }
+      });
+    }
+
+    function buildSummaryText() {
+      const selected = selectedCellId || 'nenhuma seleção específica';
+      let text = `Resumo da Matriz TRL × Camadas\nModo atual: ${currentMode}\nSeleção: ${selected}\n\n`;
+      text += 'Síntese geral:\n';
+      text += 'TRL 1 a 3, ideação e prova inicial de conceito.\n';
+      text += 'TRL 4, entrada na validação técnica formal.\n';
+      text += 'TRL 5 e 6, transição para protagonismo da validação analítica.\n';
+      text += 'TRL 7 e 8, predominância da validação clínica em uso real.\n';
+      text += 'TRL 9, operação consolidada com vigilância contínua.\n\n';
+      text += 'Frase síntese: o TRL mede o quanto a tecnologia cresceu. As camadas medem o quanto ela é confiável.';
+      return text;
+    }
+
+    document.querySelectorAll('.mode-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentMode = btn.dataset.mode;
+        modeTip.textContent = modeContent[currentMode].tip;
+        if (selectedCellId) {
+          if (selectedCellId.startsWith('trl-')) {
+            const trl = Number(selectedCellId.replace('trl-', ''));
+            selectTRL(trl);
+          } else {
+            const [row, trl] = selectedCellId.split('-');
+            selectCell(row, Number(trl));
+          }
+        }
+      });
+    });
+
+    layerFilter.addEventListener('change', applyFilter);
+
+    document.getElementById('printBtn').addEventListener('click', () => window.print());
+    document.getElementById('copyBtn').addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(buildSummaryText());
+        alert('Resumo copiado para a área de transferência.');
+      } catch {
+        alert('Não foi possível copiar automaticamente neste navegador.');
+      }
+    });
+
+    buildMatrix();
+    applyFilter();
+    selectTRL(4);
+  </script>
+</body>
+</html>
