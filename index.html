@@ -1,0 +1,1193 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Validação em Três Camadas para IA em Saúde</title>
+  <style>
+    :root {
+      --bg: #07111f;
+      --bg-soft: #0c1830;
+      --panel: rgba(14, 24, 45, 0.92);
+      --panel-2: rgba(18, 30, 56, 0.96);
+      --text: #eef4ff;
+      --muted: #a9bad8;
+      --line: rgba(255,255,255,0.09);
+      --base: #5aa8ff;
+      --mid: #8a7bff;
+      --top: #73e2ff;
+      --ok: #20bf6b;
+      --warn: #ffb020;
+      --bad: #e85b63;
+      --radius: 22px;
+      --shadow: 0 18px 40px rgba(0,0,0,0.28);
+      --shadow-soft: 0 10px 26px rgba(0,0,0,0.18);
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      font-family: Inter, Arial, Helvetica, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(90,168,255,0.12), transparent 25%),
+        radial-gradient(circle at top right, rgba(138,123,255,0.10), transparent 22%),
+        linear-gradient(180deg, #06101d 0%, #0a1424 100%);
+    }
+
+    .container {
+      width: min(1240px, calc(100% - 28px));
+      margin: 0 auto;
+      padding: 24px 0 48px;
+    }
+
+    .card {
+      background: linear-gradient(180deg, var(--panel-2), var(--panel));
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .hero {
+      padding: 28px;
+      margin-bottom: 20px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(115,226,255,0.10);
+      border: 1px solid rgba(115,226,255,0.22);
+      color: #dff8ff;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 16px 0 12px;
+      font-size: clamp(32px, 5vw, 56px);
+      line-height: 1.04;
+      letter-spacing: -0.04em;
+      max-width: 900px;
+    }
+
+    .lead {
+      margin: 0;
+      max-width: 900px;
+      color: var(--muted);
+      font-size: 18px;
+      line-height: 1.75;
+    }
+
+    .reading-guide {
+      margin-top: 18px;
+      padding: 16px 18px;
+      border-radius: 18px;
+      border: 1px solid rgba(115,226,255,0.18);
+      background: rgba(115,226,255,0.08);
+      line-height: 1.7;
+      color: #ddf8ff;
+      font-size: 14px;
+    }
+
+    .overview-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin-top: 18px;
+    }
+
+    .overview-box {
+      border-radius: 18px;
+      padding: 16px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.03);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .overview-box strong {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 16px;
+    }
+
+    .overview-box span {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.6;
+      display: block;
+    }
+
+    .progress-map {
+      padding: 22px;
+      margin-bottom: 20px;
+    }
+
+    .progress-map h2,
+    .main-layout h2,
+    .main-layout h3,
+    .deepening h2 {
+      letter-spacing: -0.02em;
+    }
+
+    .flow {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr auto 1fr;
+      gap: 10px;
+      align-items: stretch;
+      margin-top: 14px;
+    }
+
+    .step {
+      border-radius: 18px;
+      padding: 18px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.03);
+      cursor: pointer;
+      transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+      min-height: 146px;
+    }
+
+    .step:hover {
+      transform: translateY(-2px);
+      background: rgba(255,255,255,0.05);
+    }
+
+    .step.active {
+      background: rgba(255,255,255,0.06);
+    }
+
+    .step.base { border-left: 4px solid var(--base); }
+    .step.mid { border-left: 4px solid var(--mid); }
+    .step.top { border-left: 4px solid var(--top); }
+
+    .step small {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #d8e6ff;
+      font-weight: 800;
+    }
+
+    .step strong {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 17px;
+    }
+
+    .step p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.6;
+      font-size: 14px;
+    }
+
+    .arrow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+      color: #9edfff;
+      font-weight: 800;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.04);
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      display: inline-block;
+    }
+
+    .dot.base { background: var(--base); }
+    .dot.mid { background: var(--mid); }
+    .dot.top { background: var(--top); }
+
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+      padding: 16px 18px;
+      margin-bottom: 20px;
+    }
+
+    .toolbar-group {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    button, select {
+      appearance: none;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.04);
+      color: var(--text);
+      border-radius: 14px;
+      padding: 10px 14px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    button.primary {
+      background: linear-gradient(135deg, rgba(90,168,255,0.20), rgba(138,123,255,0.18));
+      border-color: rgba(115,226,255,0.22);
+    }
+
+    .main-layout {
+      display: grid;
+      grid-template-columns: 0.95fr 1.05fr;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .panel {
+      padding: 22px;
+    }
+
+    .panel h2 {
+      margin: 0 0 10px;
+      font-size: 30px;
+    }
+
+    .sub {
+      margin: 0 0 16px;
+      color: var(--muted);
+      line-height: 1.72;
+      font-size: 15px;
+    }
+
+    .didactic-banner {
+      padding: 14px 16px;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.035);
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.7;
+      margin-bottom: 16px;
+    }
+
+    .didactic-banner strong {
+      color: var(--text);
+    }
+
+    .example-banner {
+      padding: 14px 16px;
+      border-radius: 18px;
+      border: 1px solid rgba(115,226,255,0.18);
+      background: rgba(115,226,255,0.07);
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.75;
+      margin-bottom: 16px;
+    }
+
+    .example-banner strong {
+      color: var(--text);
+    }
+
+    .grid-two {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+
+    .info-box {
+      padding: 16px;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.03);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .info-box h3 {
+      margin: 0 0 8px;
+      font-size: 16px;
+    }
+
+    .info-box p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.65;
+      font-size: 14px;
+    }
+
+    .mini-sequence {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .mini-step {
+      display: grid;
+      grid-template-columns: 38px 1fr;
+      gap: 12px;
+      align-items: start;
+      padding: 12px 14px;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.03);
+    }
+
+    .mini-step .num {
+      width: 38px;
+      height: 38px;
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 800;
+      color: #fff;
+      background: rgba(90,168,255,0.20);
+      border: 1px solid rgba(115,226,255,0.20);
+    }
+
+    .mini-step strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 15px;
+    }
+
+    .mini-step span {
+      display: block;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .section-title {
+      margin: 20px 0 10px;
+      font-size: 18px;
+    }
+
+    .checklist {
+      display: grid;
+      gap: 10px;
+    }
+
+    .check-item {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      padding: 12px 14px;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.03);
+    }
+
+    .check-item input {
+      margin-top: 2px;
+      transform: scale(1.1);
+      accent-color: var(--base);
+    }
+
+    .check-item label {
+      cursor: pointer;
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
+    .progress-wrap {
+      margin-top: 16px;
+      padding: 14px 16px;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.03);
+    }
+
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 14px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: rgba(255,255,255,0.08);
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--base), var(--mid), var(--top));
+      transition: width 0.3s ease;
+    }
+
+    .score {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .score-card {
+      padding: 16px;
+      text-align: center;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.03);
+    }
+
+    .score-card strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 24px;
+    }
+
+    .score-card span {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .ref-helper {
+      padding: 14px 16px;
+      border-radius: 18px;
+      border: 1px solid rgba(138,123,255,0.18);
+      background: rgba(138,123,255,0.08);
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.7;
+      margin-bottom: 16px;
+    }
+
+    .ref-helper strong {
+      color: var(--text);
+    }
+
+    .ref-list, .feature-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .ref-item, .feature {
+      padding: 15px;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.03);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .ref-item a {
+      color: #9ce6ff;
+      text-decoration: none;
+      word-break: break-word;
+    }
+
+    .ref-item small {
+      display: block;
+      margin-top: 7px;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .feature {
+      background: linear-gradient(135deg, rgba(90,168,255,0.10), rgba(138,123,255,0.10));
+    }
+
+    .feature h4 {
+      margin: 0 0 8px;
+      font-size: 15px;
+    }
+
+    .feature p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.6;
+      font-size: 14px;
+    }
+
+    .deepening {
+      padding: 22px;
+    }
+
+    .deepening h2 {
+      margin: 0 0 10px;
+      font-size: 28px;
+    }
+
+    .depth-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin-top: 14px;
+    }
+
+    .depth-box {
+      padding: 18px;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.03);
+    }
+
+    .depth-box.base { border-top: 4px solid var(--base); }
+    .depth-box.mid { border-top: 4px solid var(--mid); }
+    .depth-box.top { border-top: 4px solid var(--top); }
+
+    .depth-box h3 {
+      margin: 0 0 10px;
+      font-size: 17px;
+    }
+
+    .depth-box p {
+      margin: 0 0 10px;
+      color: var(--muted);
+      line-height: 1.68;
+      font-size: 14px;
+    }
+
+    .depth-box ul {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--muted);
+      line-height: 1.6;
+      font-size: 14px;
+    }
+
+    @media (max-width: 980px) {
+      .overview-grid,
+      .depth-grid,
+      .score,
+      .main-layout,
+      .grid-two {
+        grid-template-columns: 1fr;
+      }
+
+      .flow {
+        grid-template-columns: 1fr;
+      }
+
+      .arrow {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <section class="card hero">
+      <div class="badge">Lousa, visão geral até os detalhes</div>
+      <h1>Validação em Três Camadas para IA em Saúde</h1>
+      <p class="lead">
+        Esta página foi organizada para ensinar o tema passo a passo. Primeiro, você vê a ideia geral. Depois, entende a sequência lógica. Em seguida, aprofunda o significado de cada camada. Por fim, chega aos detalhes operacionais, regulatórios e documentais.
+      </p>
+
+      <div class="reading-guide">
+        <strong>Como estudar esta lousa</strong><br>
+        1. Comece pela visão geral.<br>
+        2. Passe para a sequência das três etapas.<br>
+        3. Clique em cada camada para aprofundar.<br>
+        4. Use o checklist para transformar o conceito em ação prática.
+      </div>
+
+      <div class="overview-grid">
+        <div class="overview-box">
+          <strong>Visão geral</strong>
+          <span>Toda solução de IA em saúde precisa responder a três perguntas: ela foi bem construída, ela funciona de modo confiável, ela gera benefício clínico real.</span>
+        </div>
+        <div class="overview-box">
+          <strong>Lógica do modelo</strong>
+          <span>As camadas são cumulativas. Não faz sentido provar benefício clínico antes de demonstrar base técnica segura e desempenho analítico consistente.</span>
+        </div>
+        <div class="overview-box">
+          <strong>Objetivo didático</strong>
+          <span>Transformar um conceito regulatório complexo em uma sequência clara, ensinável e aplicável em aula, capítulo, projeto ou produto digital.</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="card progress-map">
+      <h2>Etapa 1, entender a sequência geral</h2>
+      <p class="sub">Antes de entrar nos detalhes, observe a ordem do raciocínio. Esta é a estrutura central do modelo.</p>
+
+      <div class="flow">
+        <div class="step base active" data-layer="base">
+          <small>Primeiro</small>
+          <strong>Construir com segurança</strong>
+          <p>O software tem arquitetura, risco, usabilidade, segurança e rastreabilidade adequados.</p>
+        </div>
+
+        <div class="arrow">→</div>
+
+        <div class="step mid" data-layer="mid">
+          <small>Depois</small>
+          <strong>Provar que funciona</strong>
+          <p>O algoritmo acerta com consistência, generaliza e mantém desempenho confiável.</p>
+        </div>
+
+        <div class="arrow">→</div>
+
+        <div class="step top" data-layer="top">
+          <small>Por fim</small>
+          <strong>Demonstrar benefício real</strong>
+          <p>A solução melhora decisões, fluxos ou desfechos no mundo real.</p>
+        </div>
+      </div>
+
+      <div class="legend">
+        <div class="legend-item"><span class="dot base"></span>Base, engenharia e segurança</div>
+        <div class="legend-item"><span class="dot mid"></span>Meio, desempenho analítico</div>
+        <div class="legend-item"><span class="dot top"></span>Topo, impacto clínico real</div>
+      </div>
+    </section>
+
+    <section class="card toolbar">
+      <div class="toolbar-group">
+        <button id="didaticoBtn" class="primary">Modo Didático</button>
+        <button id="regulatorioBtn">Modo Regulatório</button>
+        <button id="featuresBtn">Ir para funcionalidades do sistema</button>
+      </div>
+
+      <div class="toolbar-group">
+        <select id="maturitySelect">
+          <option value="0">Maturidade, Não iniciada</option>
+          <option value="25">Maturidade, Inicial</option>
+          <option value="50">Maturidade, Parcial</option>
+          <option value="75">Maturidade, Avançada</option>
+          <option value="100">Maturidade, Robusta</option>
+        </select>
+      </div>
+    </section>
+
+    <section class="main-layout">
+      <div class="card panel">
+        <h2 id="layerTitle">Camada Base, Validação Técnica e de Engenharia</h2>
+        <p class="sub" id="layerDescription">Esta camada confirma se o sistema foi construído com segurança, organização, rastreabilidade e foco no usuário.</p>
+
+        <div class="didactic-banner" id="didacticSummary"></div>
+
+        <div class="grid-two">
+          <div class="info-box">
+            <h3>Pergunta central</h3>
+            <p id="questionBox"></p>
+          </div>
+
+          <div class="info-box">
+            <h3>Por que isso vem primeiro</h3>
+            <p id="pedagogyBox"></p>
+          </div>
+        </div>
+
+        <h3 class="section-title">Etapa 2, aprofundar sem entrar ainda no detalhe final</h3>
+        <div class="mini-sequence" id="miniSequence"></div>
+
+        <h3 class="section-title">Etapa 3, checklist operacional</h3>
+        <p class="sub">Agora o conceito vira ação. Marque os itens atendidos para acompanhar a maturidade da camada.</p>
+        <div class="checklist" id="checklist"></div>
+
+        <div class="progress-wrap">
+          <div class="progress-header">
+            <strong>Indicador de maturidade</strong>
+            <span id="maturityLabel">Não iniciada</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill" id="progressFill"></div>
+          </div>
+        </div>
+
+        <div class="score">
+          <div class="score-card">
+            <strong id="doneCount">0</strong>
+            <span>Itens concluídos</span>
+          </div>
+
+          <div class="score-card">
+            <strong id="totalCount">0</strong>
+            <span>Total de itens</span>
+          </div>
+
+          <div class="score-card">
+            <strong id="scorePercent">0%</strong>
+            <span>Conformidade</span>
+          </div>
+
+          <div class="score-card">
+            <strong id="nextStep">Analítica</strong>
+            <span>Próximo foco</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card panel">
+        <h2>Etapa 4, detalhes de suporte e evidência</h2>
+
+        <div class="ref-helper">
+          <strong>Como usar esta coluna</strong><br>
+          Primeiro, veja quais referências sustentam a camada. Depois, use as funcionalidades do sistema para transformar a teoria em painel, framework ou produto digital.
+        </div>
+
+        <div class="example-banner">
+          <strong>Exemplo aplicado, aplicativo FechaFeridas</strong><br><br>
+
+          <strong>Camada Base</strong><br>
+          O FechaFeridas precisa registrar imagens com segurança, controlar acesso, manter histórico de versões, ter interface clara e garantir rastreabilidade dos dados.<br><br>
+
+          <strong>Camada Intermediária</strong><br>
+          O algoritmo precisa analisar corretamente a imagem, por exemplo distinguindo úlcera venosa, pé diabético e ferida arterial, com boa sensibilidade, especificidade e estabilidade.<br><br>
+
+          <strong>Camada Topo</strong><br>
+          O uso do aplicativo precisa melhorar a decisão clínica, reduzir erros, agilizar encaminhamento e apoiar o cuidado real do paciente.<br><br>
+
+          <strong>Mensagem-chave</strong><br>
+          Não basta o algoritmo ser bom. Ele precisa ser seguro, confiável e útil no mundo real.
+        </div>
+
+        <p class="sub" id="refsIntro"></p>
+        <div class="ref-list" id="references"></div>
+
+        <h3 class="section-title" id="featuresSection">Funcionalidades do sistema</h3>
+        <div class="feature-grid" id="systemFeatures"></div>
+      </div>
+    </section>
+
+    <section class="card deepening">
+      <h2>Resumo progressivo, do geral ao específico</h2>
+      <p class="sub">Esta faixa final consolida o aprendizado. Ela mostra, lado a lado, o sentido de cada camada e o que precisa ser demonstrado em cada uma.</p>
+
+      <div class="depth-grid">
+        <div class="depth-box base">
+          <h3>Camada Base</h3>
+          <p>É a fase da construção confiável. Aqui a preocupação central é a qualidade estrutural do software.</p>
+          <ul>
+            <li>Arquitetura e requisitos</li>
+            <li>Gestão de risco</li>
+            <li>Usabilidade</li>
+            <li>Segurança e rastreabilidade</li>
+          </ul>
+        </div>
+
+        <div class="depth-box mid">
+          <h3>Camada Intermediária</h3>
+          <p>É a fase do desempenho analítico. Aqui importa saber se o algoritmo realmente funciona bem.</p>
+          <ul>
+            <li>Métricas adequadas</li>
+            <li>Robustez e estabilidade</li>
+            <li>Generalização</li>
+            <li>Controle de viés</li>
+          </ul>
+        </div>
+
+        <div class="depth-box top">
+          <h3>Camada Topo</h3>
+          <p>É a fase da utilidade clínica real. Aqui importa saber se a solução melhora a prática assistencial.</p>
+          <ul>
+            <li>Impacto no cuidado</li>
+            <li>Integração ao fluxo</li>
+            <li>Segurança em uso real</li>
+            <li>Monitoramento contínuo</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const content = {
+      base: {
+        title: 'Camada Base, Validação Técnica e de Engenharia',
+        description: 'Esta camada confirma se o sistema foi construído com segurança, organização, rastreabilidade e foco no usuário.',
+        question: 'A solução foi construída do jeito certo para ser usada com segurança e previsibilidade?',
+        summary: 'Em linguagem simples, esta camada pergunta se a estrutura do sistema é firme antes de qualquer promessa sobre desempenho ou impacto clínico.',
+        pedagogy: 'Ela vem primeiro porque não faz sentido confiar em um resultado se a base do sistema é frágil, pouco testada ou difícil de usar.',
+        sequence: [
+          {
+            title: 'Entender o foco',
+            text: 'Aqui o centro da análise não é o benefício clínico. O foco é saber se a solução foi bem construída.'
+          },
+          {
+            title: 'Identificar os pilares',
+            text: 'Os pilares principais são arquitetura, requisitos, risco, usabilidade, segurança e rastreabilidade.'
+          },
+          {
+            title: 'Transformar em evidência',
+            text: 'Esses pilares precisam virar documentação, testes e registros auditáveis.'
+          }
+        ],
+        checks: [
+          'Existe documentação do ciclo de vida do software.',
+          'Há mapa de risco com severidade, probabilidade e mitigação.',
+          'Os requisitos funcionais e não funcionais foram definidos.',
+          'Existe rastreabilidade entre requisito, teste e versão.',
+          'A interface foi avaliada quanto à usabilidade.',
+          'Há estratégia de manutenção, correção e atualização.',
+          'Existe controle de segurança da informação e integridade dos dados.'
+        ],
+        refsIntro: 'Nesta camada, as referências servem para sustentar engenharia, qualidade, risco e usabilidade do software.',
+        refs: [
+          {
+            title: 'IEC 62304, software de dispositivo médico, processos do ciclo de vida',
+            link: 'https://www.iec.ch',
+            note: 'Ajuda a estruturar desenvolvimento, manutenção e governança do software.'
+          },
+          {
+            title: 'ISO 14971:2019, gestão de risco para dispositivos médicos',
+            link: 'https://www.iso.org/standard/72704.html',
+            note: 'Base para identificar perigos, estimar risco e definir controles.'
+          },
+          {
+            title: 'IEC 62366, engenharia de usabilidade',
+            link: 'https://www.iec.ch',
+            note: 'Fundamental para reduzir erro de uso e melhorar segurança na interação.'
+          },
+          {
+            title: 'ISO/IEC 25010, modelo de qualidade de software',
+            link: 'https://www.iso.org/standard/35733.html',
+            note: 'Organiza atributos como confiabilidade, desempenho, segurança e manutenibilidade.'
+          }
+        ],
+        features: [
+          {
+            title: 'Mapa de risco vivo',
+            desc: 'Atualiza perigos, controles, responsáveis e status de mitigação.'
+          },
+          {
+            title: 'Matriz requisito, teste, versão',
+            desc: 'Conecta o que foi pedido, o que foi testado e o que foi entregue.'
+          },
+          {
+            title: 'Painel de usabilidade',
+            desc: 'Mostra dificuldades do usuário, erros recorrentes e melhorias prioritárias.'
+          },
+          {
+            title: 'Auditoria técnica exportável',
+            desc: 'Gera relatório resumido da base técnica para gestão e parceiros.'
+          }
+        ]
+      },
+
+      mid: {
+        title: 'Camada Intermediária, Validação Analítica',
+        description: 'Esta camada demonstra se o algoritmo interpreta corretamente os dados de entrada e entrega saídas consistentes, estáveis e generalizáveis.',
+        question: 'O algoritmo realmente funciona bem e continua funcionando fora do cenário ideal?',
+        summary: 'Em linguagem simples, esta camada pergunta se a inteligência do sistema acerta com consistência e não apenas em condições perfeitas.',
+        pedagogy: 'Ela vem depois da base técnica porque um algoritmo só pode ser avaliado seriamente quando o sistema já é estruturalmente confiável.',
+        sequence: [
+          {
+            title: 'Entender o foco',
+            text: 'Agora o olhar sai da construção e entra no desempenho do algoritmo.'
+          },
+          {
+            title: 'Identificar os pilares',
+            text: 'Os pilares principais são métricas adequadas, robustez, estabilidade, generalização e controle de viés.'
+          },
+          {
+            title: 'Transformar em evidência',
+            text: 'Esses pilares precisam aparecer em testes bem documentados, validação externa e análise por subgrupos.'
+          }
+        ],
+        checks: [
+          'Existe separação adequada entre treino, validação e teste.',
+          'As métricas escolhidas são apropriadas para a pergunta clínica.',
+          'O modelo foi submetido a validação externa ou cenário equivalente.',
+          'Há análise de robustez diante de variações de entrada.',
+          'Existe avaliação por subgrupos e controle de viés.',
+          'O desempenho é reprodutível em rodadas comparáveis.',
+          'Mudanças de modelo e versão estão documentadas.'
+        ],
+        refsIntro: 'Nesta camada, as referências ajudam a demonstrar desempenho analítico, robustez, viés, validade e governança do algoritmo.',
+        refs: [
+          {
+            title: 'IMDRF, SaMD Clinical Evaluation, 2017',
+            link: 'https://www.imdrf.org/documents/software-medical-device-samd-clinical-evaluation',
+            note: 'Documento central para validade clínica, validação analítica e associação científica válida.'
+          },
+          {
+            title: 'FDA, Good Machine Learning Practice',
+            link: 'https://www.fda.gov/medical-devices/software-medical-device-samd/good-machine-learning-practice-medical-device-development-guiding-principles',
+            note: 'Princípios para dados representativos, robustez, monitoramento e qualidade de desenvolvimento.'
+          },
+          {
+            title: 'WHO, Ethics and Governance of AI for Health',
+            link: 'https://www.who.int/publications/i/item/9789240029200',
+            note: 'Sustenta robustez, transparência, responsabilidade e atenção a vieses.'
+          },
+          {
+            title: 'CONSORT AI e SPIRIT AI',
+            link: 'https://www.bmj.com/content/370/bmj.m3164',
+            note: 'Úteis para desenhar estudos mais transparentes e reprodutíveis.'
+          }
+        ],
+        features: [
+          {
+            title: 'Painel de métricas clínicas',
+            desc: 'Organiza sensibilidade, especificidade, AUC, precisão e estabilidade por cenário.'
+          },
+          {
+            title: 'Semáforo de robustez',
+            desc: 'Mostra onde o modelo é sólido, limítrofe ou vulnerável.'
+          },
+          {
+            title: 'Radar de viés',
+            desc: 'Compara desempenho por subgrupos e detecta assimetrias relevantes.'
+          },
+          {
+            title: 'Controle de versões do algoritmo',
+            desc: 'Acompanha mudanças e seus efeitos sobre o desempenho ao longo do tempo.'
+          }
+        ]
+      },
+
+      top: {
+        title: 'Camada Topo, Validação Clínica e Implementação Real',
+        description: 'Esta camada demonstra se a solução gera benefício assistencial no mundo real, com integração ao fluxo e impacto prático na tomada de decisão.',
+        question: 'A solução melhora decisões, processos ou desfechos em ambiente real de uso?',
+        summary: 'Em linguagem simples, esta camada pergunta se a solução realmente ajuda profissionais, pacientes e serviços de saúde no contexto real.',
+        pedagogy: 'Ela fica por último porque benefício clínico só é convincente quando a base técnica e o desempenho analítico já foram demonstrados.',
+        sequence: [
+          {
+            title: 'Entender o foco',
+            text: 'Aqui não basta o algoritmo ser bom. Ele precisa ser útil no cuidado real.'
+          },
+          {
+            title: 'Identificar os pilares',
+            text: 'Os pilares principais são impacto no fluxo, apoio à decisão, segurança prática, adoção e monitoramento.'
+          },
+          {
+            title: 'Transformar em evidência',
+            text: 'Esses pilares precisam aparecer em estudo clínico, piloto real, métricas assistenciais e monitoramento pós adoção.'
+          }
+        ],
+        checks: [
+          'Existe estudo clínico ou piloto em ambiente real.',
+          'Foram definidos desfechos clínicos ou operacionais relevantes.',
+          'Há avaliação do impacto na decisão do profissional.',
+          'Existe monitoramento de segurança pós implementação.',
+          'Foi analisada integração ao fluxo real de trabalho.',
+          'Usuários reais avaliaram utilidade, confiança e interpretabilidade.',
+          'Há plano de monitoramento contínuo após adoção.'
+        ],
+        refsIntro: 'Nesta camada, as referências servem para apoiar desenho de estudos, demonstração de valor clínico e monitoramento em implementação real.',
+        refs: [
+          {
+            title: 'IMDRF, SaMD Clinical Evaluation, 2017',
+            link: 'https://www.imdrf.org/documents/software-medical-device-samd-clinical-evaluation',
+            note: 'Base para demonstrar significado clínico no uso pretendido do software.'
+          },
+          {
+            title: 'CONSORT AI',
+            link: 'https://www.bmj.com/content/370/bmj.m3164',
+            note: 'Diretriz para relatar ensaios clínicos envolvendo inteligência artificial.'
+          },
+          {
+            title: 'SPIRIT AI',
+            link: 'https://www.bmj.com/content/370/bmj.m3210',
+            note: 'Ajuda a estruturar protocolos clínicos com clareza metodológica.'
+          },
+          {
+            title: 'DECIDE AI',
+            link: 'https://www.nature.com/articles/s41591-022-01772-9',
+            note: 'Direciona avaliação precoce de IA clínica em contexto real de implementação.'
+          }
+        ],
+        features: [
+          {
+            title: 'Painel de impacto real',
+            desc: 'Compara antes e depois em tempo de decisão, acerto, fluxo e segurança.'
+          },
+          {
+            title: 'Monitor pós implementação',
+            desc: 'Acompanha eventos críticos, aderência de uso e sinais de degradação.'
+          },
+          {
+            title: 'Mapa de adoção assistencial',
+            desc: 'Mostra onde a solução entra no fluxo e onde há resistência.'
+          },
+          {
+            title: 'Relatório executivo de valor clínico',
+            desc: 'Resume benefício prático, limitações, riscos residuais e próximos passos.'
+          }
+        ]
+      }
+    };
+
+    let currentLayer = 'base';
+    let currentMode = 'didatico';
+
+    const layerTitle = document.getElementById('layerTitle');
+    const layerDescription = document.getElementById('layerDescription');
+    const questionBox = document.getElementById('questionBox');
+    const pedagogyBox = document.getElementById('pedagogyBox');
+    const didacticSummary = document.getElementById('didacticSummary');
+    const miniSequence = document.getElementById('miniSequence');
+    const checklist = document.getElementById('checklist');
+    const references = document.getElementById('references');
+    const systemFeatures = document.getElementById('systemFeatures');
+    const refsIntro = document.getElementById('refsIntro');
+    const totalCount = document.getElementById('totalCount');
+    const doneCount = document.getElementById('doneCount');
+    const scorePercent = document.getElementById('scorePercent');
+    const nextStep = document.getElementById('nextStep');
+    const progressFill = document.getElementById('progressFill');
+    const maturitySelect = document.getElementById('maturitySelect');
+    const maturityLabel = document.getElementById('maturityLabel');
+
+    function updateActiveSteps(layerKey) {
+      document.querySelectorAll('.step').forEach(step => {
+        step.classList.toggle('active', step.dataset.layer === layerKey);
+      });
+    }
+
+    function renderLayer(layerKey) {
+      currentLayer = layerKey;
+      const data = content[layerKey];
+      updateActiveSteps(layerKey);
+
+      layerTitle.textContent = data.title;
+      layerDescription.textContent = data.description;
+      questionBox.textContent = data.question;
+      pedagogyBox.textContent = data.pedagogy;
+
+      didacticSummary.innerHTML = currentMode === 'didatico'
+        ? `<strong>Síntese didática</strong><br>${data.summary}`
+        : `<strong>Leitura regulatória</strong><br>${data.refsIntro}`;
+
+      miniSequence.innerHTML = '';
+      data.sequence.forEach((item, index) => {
+        const box = document.createElement('div');
+        box.className = 'mini-step';
+        box.innerHTML = `
+          <div class="num">${index + 1}</div>
+          <div>
+            <strong>${item.title}</strong>
+            <span>${item.text}</span>
+          </div>
+        `;
+        miniSequence.appendChild(box);
+      });
+
+      checklist.innerHTML = '';
+      data.checks.forEach((item, index) => {
+        const id = `${layerKey}-${index}`;
+        const row = document.createElement('div');
+        row.className = 'check-item';
+        row.innerHTML = `
+          <input type="checkbox" id="${id}">
+          <label for="${id}">${item}</label>
+        `;
+        checklist.appendChild(row);
+      });
+
+      refsIntro.textContent = data.refsIntro;
+
+      references.innerHTML = '';
+      data.refs.forEach(ref => {
+        const box = document.createElement('div');
+        box.className = 'ref-item';
+        box.innerHTML = `
+          <strong>${ref.title}</strong>
+          <small>${ref.note}</small>
+          <small><a href="${ref.link}" target="_blank" rel="noopener noreferrer">${ref.link}</a></small>
+        `;
+        references.appendChild(box);
+      });
+
+      systemFeatures.innerHTML = '';
+      data.features.forEach(feature => {
+        const box = document.createElement('div');
+        box.className = 'feature';
+        box.innerHTML = `
+          <h4>${feature.title}</h4>
+          <p>${feature.desc}</p>
+        `;
+        systemFeatures.appendChild(box);
+      });
+
+      totalCount.textContent = data.checks.length;
+      updateScore();
+    }
+
+    function updateScore() {
+      const boxes = checklist.querySelectorAll('input[type="checkbox"]');
+      const done = [...boxes].filter(b => b.checked).length;
+      const total = boxes.length || 1;
+      const pct = Math.round((done / total) * 100);
+
+      doneCount.textContent = done;
+      totalCount.textContent = total;
+      scorePercent.textContent = `${pct}%`;
+
+      if (currentLayer === 'base') nextStep.textContent = 'Analítica';
+      if (currentLayer === 'mid') nextStep.textContent = 'Clínica';
+      if (currentLayer === 'top') nextStep.textContent = 'Monitoramento';
+    }
+
+    checklist.addEventListener('change', updateScore);
+
+    document.querySelectorAll('.step').forEach(step => {
+      step.addEventListener('click', () => renderLayer(step.dataset.layer));
+    });
+
+    document.getElementById('didaticoBtn').addEventListener('click', () => {
+      currentMode = 'didatico';
+      renderLayer(currentLayer);
+    });
+
+    document.getElementById('regulatorioBtn').addEventListener('click', () => {
+      currentMode = 'regulatorio';
+      renderLayer(currentLayer);
+    });
+
+    document.getElementById('featuresBtn').addEventListener('click', () => {
+      document.getElementById('featuresSection').scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+      });
+    });
+
+    maturitySelect.addEventListener('change', (e) => {
+      const val = Number(e.target.value);
+      progressFill.style.width = `${val}%`;
+
+      const labels = {
+        0: 'Não iniciada',
+        25: 'Inicial',
+        50: 'Parcial',
+        75: 'Avançada',
+        100: 'Robusta'
+      };
+
+      maturityLabel.textContent = labels[val] || 'Não iniciada';
+    });
+
+    renderLayer('base');
+  </script>
+</body>
+</html>
